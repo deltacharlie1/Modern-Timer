@@ -1,4 +1,4 @@
-# modeern-timer
+# modern-timer
 
 ![screenshot](pebble-screenshot_down.png)
 
