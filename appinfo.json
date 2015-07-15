@@ -1,0 +1,86 @@
+{
+  "uuid": "4145256f-4776-4a0c-a172-31b7a1d82195",
+  "shortName": "Modern Timer",
+  "longName": "Modern Timer",
+  "companyName": "Doug Conran",
+  "versionCode": 1,
+  "versionLabel": "1.0",
+  "capabilities": [
+	"configurable"
+  ],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "VIBES_STATUS": 0,
+    "REVERT_STATUS": 1,
+    "SCREEN_TYPE": 2,
+    "RGB_RED": 5,
+    "RGB_GREEN": 6,
+    "RGB_BLUE": 7
+  },
+  "resources": {
+    "media": [
+      {   
+        "type": "png",
+        "name": "BLUETOOTH_W",
+        "file": "images/bluetooth_w.png"
+      },  
+      {   
+        "type": "png",
+        "name": "BATTERY_CHARGE_W",
+        "file": "images/battery-charge_w.png"
+      },  
+      {   
+        "type": "png",
+        "name": "BATTERY_ICON_W",
+        "file": "images/battery_icon_w.png"
+      },  
+      {   
+        "type": "png",
+        "name": "BLUETOOTH_B",
+        "file": "images/bluetooth_b.png"
+      },  
+      {   
+        "type": "png",
+        "name": "BATTERY_CHARGE_B",
+        "file": "images/battery-charge_b.png"
+      },  
+      {   
+        "type": "png",
+        "name": "BATTERY_ICON_B",
+        "file": "images/battery_icon_b.png"
+      },  
+      {
+        "type": "png",
+        "name": "IMAGE_BACKGROUND_STD_B",
+        "file": "images/bg_std_w.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BACKGROUND_BOLD_B",
+        "file": "images/bg_bold_w.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BACKGROUND_STD_W",
+        "file": "images/bg_std_b.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BACKGROUND_BOLD_W",
+        "file": "images/bg_bold_b.png"
+      },
+      {
+        "type": "font",
+        "name": "DIGITAL_24",
+        "file": "fonts/OpenSans-CondBold.ttf"
+      }
+     ]
+   },
+  "targetPlatforms": [
+    "aplite",
+    "basalt"
+  ],
+  "sdkVersion": "3"
+}
