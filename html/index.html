@@ -55,6 +55,14 @@
 		$("#col1").val(rgb2hex(watchface_color));
 		$(".myface").css('background-color',watchface_color);
 	}
+        if (/yes/.test(suffix[6])) {
+          $("#flipscreen_yes").prop("checked",true).checkboxradio("refresh");
+        } 
+        else {
+          if (/no/.test(suffix[6])) {
+            $("#flipscreen_no").prop('checked',true).checkboxradio("refresh");
+          }
+        } 
 
         $("#b-submit").click(function() {
           console.log("Submit");
@@ -110,6 +118,13 @@
                         <label for="revert_no">No</label>
                         <input type="radio" name="revert_status" id="revert_yes" value="Yes" />
                         <label for="revert_yes">Yes</label>
+                    </fieldset>
+                    <label for="special-feature"><h3 style="-webkit-margin-after: 0px;">Flip Screen</h3>Select Flip Screen if you want to wear your Pebble on your right wrist with the buttons towards the wrist..</label>
+                    <fieldset data-role="controlgroup" data-type="horizontal" data-mini="false">
+                        <input type="radio" name="flipscreen" id="flipscreen_no" value="No" />
+                        <label for="flipscreen_no">No</label>
+                        <input type="radio" name="flipscreen" id="flipscreen_yes" value="Off" />
+                        <label for="flipscreen_yes">Yes</label>
                     </fieldset>
                     <div style="display:none; margin-top:10px;" id="basaltcols">
                     <table border="0" cellspacing="0" cellpadding="0">

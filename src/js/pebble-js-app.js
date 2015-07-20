@@ -40,8 +40,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
     screen_color = "rgb(0, 0, 0)";
   }
 
-  Pebble.openURL('http://www.corunna.com/Pebble/code.html?' + vibes_status + "?" + revert_status + "?" + screen_type + "?" + watch.platform + "?" + encodeURIComponent(screen_color) + "?" + flipscreen);
-//  Pebble.openURL('http://www.corunna.com/Pebble/index.html?' + vibes_status + "?" + revert_status + "?" + screen_type + "?" + watch.platform);
+  Pebble.openURL('http://www.corunna.com/Pebble/index.html?' + vibes_status + "?" + revert_status + "?" + screen_type + "?" + watch.platform + "?" + encodeURIComponent(screen_color) + "?" + flipscreen);
 });
 Pebble.addEventListener('webviewclosed', function(e) {
         console.log("Into wbclosed.");
