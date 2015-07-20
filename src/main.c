@@ -1,6 +1,7 @@
 #include "analog-timer.h"
 #include <time.h>
-#include "pebble.h"
+#include <pebble.h>
+#include "flips.h"
 
 #define VIBES_STATUS 0
 #define REVERT_STATUS 1
@@ -10,6 +11,7 @@
 #define RGB_RED 5
 #define RGB_GREEN 6
 #define RGB_BLUE 7
+#define FLIPSCREEN 8
 
 static Window *window;
 static GRect bounds;
@@ -35,10 +37,10 @@ static GBitmap *icon_bt;
 static Layer *battery_layer;
 static Layer *bt_layer;
 
-int minutes=0, seconds=0, upmins = 0, upsecs = 0, downmins = 0, downsecs = 0;
-int rgb_red = 0, rgb_green = 0, rgb_blue = 0;  // default black face
+static int minutes=0, seconds=0, upmins = 0, upsecs = 0, downmins = 0, downsecs = 0;
+static int rgb_red = 0, rgb_green = 0, rgb_blue = 0;  // default black face
 
-bool timer_started = false,
+static bool timer_started = false,
      up_timer = false,
      down_timer = false,
      timer_setup = false,
@@ -46,7 +48,8 @@ bool timer_started = false,
      min_timer = false,
      sec_timer = false,
      vibes_on = true,
-     revert = false;
+     revert = false,
+     flipscreen = false;
 
 static int screen_type = 0;  //  Default = std black
 /*
@@ -55,9 +58,9 @@ static int screen_type = 0;  //  Default = std black
 	2 = std white  (sw)
 	3 = bold white (bw)
 */
-uint32_t short_vibe[] = {100};
-uint32_t double_vibe[] = {100, 100, 100};
-uint32_t end_vibe[] = {300, 200, 100, 100, 100};
+static uint32_t short_vibe[] = {100};
+static uint32_t double_vibe[] = {100, 100, 100};
+static uint32_t end_vibe[] = {300, 200, 100, 100, 100};
 
 //  Set count down timer vibration patterns
 VibePattern shortvibe = {
@@ -144,6 +147,14 @@ static void in_recv_handler(DictionaryIterator *iterator, void *context) {
       case RGB_BLUE:
         rgb_blue = atoi(t->value->cstring);
         break;
+      case FLIPSCREEN:
+        if (strcmp(t->value->cstring, "no") == 0) {
+          flipscreen = false;
+        }
+        else if (strcmp(t->value->cstring, "yes") == 0) {
+         flipscreen = true;
+        }
+        break;
     }
     t = dict_read_next(iterator);
   }
@@ -153,6 +164,7 @@ static void in_recv_handler(DictionaryIterator *iterator, void *context) {
   persist_write_int(RGB_RED, rgb_red); 
   persist_write_int(RGB_GREEN, rgb_green); 
   persist_write_int(RGB_BLUE, rgb_blue); 
+  persist_write_bool(FLIPSCREEN,flipscreen); 
 
   layer_remove_from_parent((Layer *)watchface_layer);
 
@@ -248,6 +260,10 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
   // dot in the middle
   graphics_context_set_fill_color(ctx, GColorWatchface);
   graphics_fill_rect(ctx, GRect(bounds.size.w / 2 - 1, bounds.size.h / 2 - 1, 3, 3), 0, GCornerNone);
+  
+  if (flipscreen) {
+    flipHV(ctx);
+  }
 }
 
 //  Update the date
@@ -362,9 +378,7 @@ static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
   layer_mark_dirty(window_get_root_layer(window));
 }
 
-  //  Set up the click handler
-void up_click_handler(ClickRecognizerRef recognizer, void *context)
-{
+void uptimer() {
   if (timer_showing){
     if (! timer_started) {
     //  Don't do anything if the timer has started
@@ -391,16 +405,14 @@ void up_click_handler(ClickRecognizerRef recognizer, void *context)
   }
 }
 
-//  The up long click routines are to speed up adding minutes 
-void long_up_click_down_handler(ClickRecognizerRef recognizer, void *context)
-{
+void long_up_down_timer() {
   if (timer_showing && timer_setup) {
     min_timer = true;
     app_timer_register(500, (AppTimerCallback) timer_callback, NULL); 
   }
 }
 
-void long_up_click_up_handler(ClickRecognizerRef recognizer, void *context) {
+void long_up_up_timer() {
   min_timer = false;
 }
 
@@ -471,9 +483,7 @@ void select_long_click_handler(ClickRecognizerRef recognizer, void *context)
   }
 }
 
-//  Display the count down timer or decrement seconds
-void down_click_handler(ClickRecognizerRef recognizer, void *context)
-{
+void downtimer() {
   if (timer_showing) {
     if (! timer_started) {
       if (timer_setup) {
@@ -500,16 +510,78 @@ void down_click_handler(ClickRecognizerRef recognizer, void *context)
   }
 }
 
-void long_down_click_down_handler(ClickRecognizerRef recognizer, void *context)
-{
+void long_down_down_timer() {
   if (timer_showing && timer_setup) {
     sec_timer = true;
     app_timer_register(500, (AppTimerCallback) timer_callback, NULL); 
   }
 }
 
-void long_down_click_up_handler(ClickRecognizerRef recognizer, void *context) {
+void long_down_up_timer() {
   sec_timer = false;
+}
+
+  //  Set up the click handler
+void up_click_handler(ClickRecognizerRef recognizer, void *context)
+{
+  if (flipscreen) {
+    downtimer();
+  }
+  else {
+    uptimer();
+  }
+}
+
+//  The up long click routines are to speed up adding minutes 
+void long_up_click_down_handler(ClickRecognizerRef recognizer, void *context)
+{
+  if (flipscreen) {
+    long_down_down_timer();
+  }
+  else {
+    long_up_down_timer();
+  }
+}
+
+void long_up_click_up_handler(ClickRecognizerRef recognizer, void *context)
+{
+  if (flipscreen) {
+    long_down_up_timer();
+  }
+  else {
+    long_up_up_timer();
+  }
+}
+
+//  Display the count down timer or decrement seconds
+void down_click_handler(ClickRecognizerRef recognizer, void *context)
+{
+  if (flipscreen) {
+    uptimer();
+  }
+  else {
+    downtimer();
+  }
+}
+
+void long_down_click_down_handler(ClickRecognizerRef recognizer, void *context)
+{
+  if (flipscreen) {
+    long_up_down_timer();
+  }
+  else {
+    long_down_down_timer();
+  }
+}
+
+void long_down_click_up_handler(ClickRecognizerRef recognizer, void *context)
+{
+  if (flipscreen) {
+    long_up_up_timer();
+  }
+  else {
+    long_down_up_timer();
+  }
 }
 
 void click_config_provider(void *context)
@@ -691,6 +763,9 @@ static void init() {
   }
   if (persist_exists(SCREEN_TYPE)) {
       screen_type = persist_read_int(SCREEN_TYPE);
+  }
+  if (persist_exists(FLIPSCREEN)) {
+      flipscreen = persist_read_bool(FLIPSCREEN);
   }
   if (persist_exists(RGB_RED)) {
     rgb_red = persist_read_int(RGB_RED);

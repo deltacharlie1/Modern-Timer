@@ -17,7 +17,8 @@
     "SCREEN_TYPE": 2,
     "RGB_RED": 5,
     "RGB_GREEN": 6,
-    "RGB_BLUE": 7
+    "RGB_BLUE": 7,
+    "FLIPSCREEN": 8
   },
   "resources": {
     "media": [

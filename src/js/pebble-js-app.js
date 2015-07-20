@@ -2,11 +2,13 @@ var vibes_key = 0;
 var revert_key = 1;
 var screen_type_key = 2;
 var screen_color_key = 3;
+var flipscreen_key = 4;
 var vibes_status;
 var revert_status;
 var screen_type = "sb";
 var watch;
 var screen_color;
+var flipscreen = "no";
 
 Pebble.addEventListener("ready", function(e) {
   console.log("Hello world! - Sent from your javascript application.");
@@ -29,12 +31,16 @@ Pebble.addEventListener('showConfiguration', function(e) {
   if (screen_type == null) {
     screen_type = "sb";
   }
+  flipscreen = localStorage.getItem(flipscreen_key);
+  if (flipscreen == null) {
+    flipscreen = "no";
+  }
   screen_color = localStorage.getItem(screen_color_key);
   if (screen_color == null) {
     screen_color = "rgb(0, 0, 0)";
   }
 
-  Pebble.openURL('http://www.corunna.com/Pebble/index.html?' + vibes_status + "?" + revert_status + "?" + screen_type + "?" + watch.platform + "?" + encodeURIComponent(screen_color));
+  Pebble.openURL('http://www.corunna.com/Pebble/code.html?' + vibes_status + "?" + revert_status + "?" + screen_type + "?" + watch.platform + "?" + encodeURIComponent(screen_color) + "?" + flipscreen);
 //  Pebble.openURL('http://www.corunna.com/Pebble/index.html?' + vibes_status + "?" + revert_status + "?" + screen_type + "?" + watch.platform);
 });
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -55,6 +61,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
   if (options.revert_yes) {
     localStorage.setItem(revert_key, "yes");
     revert_status = "yes";
+  }
+  if (options.flipscreen_no) {
+    localStorage.setItem(flipscreen_key, "no");
+    flipscreen = "no";
+  }
+  if (options.flipscreen_yes) {
+    localStorage.setItem(flipscreen_key, "yes");
+    flipscreen = "yes";
   }
   if (options.screen_type_std_b) {
     localStorage.setItem(screen_type_key, "sb");
@@ -81,7 +95,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
                            "SCREEN_TYPE": screen_type,
                            "RGB_RED": rgb[1],
                            "RGB_GREEN": rgb[2],
-                           "RGB_BLUE": rgb[3]
+                           "RGB_BLUE": rgb[3],
+                           "FLIPSCREEN": flipscreen
                          },
       function(e) {
         console.log("Sending settings data ...");
