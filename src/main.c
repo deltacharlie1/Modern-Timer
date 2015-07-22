@@ -802,8 +802,10 @@ static void init() {
   #ifdef PBL_COLOR
     GColorWatchface = GColorFromRGB(rgb_red, rgb_green,rgb_blue);
   #endif
-
   window = window_create();
+  #ifdef PBL_PLATFORM_APLITE
+    window_set_fullscreen(window,true);
+  #endif
   window_set_window_handlers(window, (WindowHandlers) {
     .load = window_load,
     .unload = window_unload,
