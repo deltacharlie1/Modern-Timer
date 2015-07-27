@@ -37,7 +37,7 @@ static GBitmap *icon_bt;
 static Layer *battery_layer;
 static Layer *bt_layer;
 
-static int minutes=0, seconds=0, upmins = 0, upsecs = 0, downmins = 0, downsecs = 0;
+static int minutes=0, seconds=0, downmins = 0, downsecs = 0;
 static int rgb_red = 0, rgb_green = 0, rgb_blue = 0;  // default black face
 
 static bool timer_started = false,
@@ -166,7 +166,8 @@ static void in_recv_handler(DictionaryIterator *iterator, void *context) {
   persist_write_int(RGB_BLUE, rgb_blue); 
   persist_write_bool(FLIPSCREEN,flipscreen); 
 
-  layer_remove_from_parent((Layer *)watchface_layer);
+  bitmap_layer_destroy(watchface_layer);
+  gbitmap_destroy(watchface);
 
   switch(screen_type) {
     case 0:
@@ -195,11 +196,6 @@ static void in_recv_handler(DictionaryIterator *iterator, void *context) {
     GColorWatchface = GColorFromRGB(rgb_red, rgb_green,rgb_blue);
   #endif
 
-  watchface_layer = bitmap_layer_create(bounds);
-  bitmap_layer_set_bitmap(watchface_layer,watchface);
-  bitmap_layer_set_compositing_mode(watchface_layer,GCompOpSet);
-  bitmap_layer_set_background_color(watchface_layer,GColorWatchface);
-  layer_insert_below_sibling((Layer *)watchface_layer,(Layer *)s_date_layer);
   text_layer_set_background_color(s_day_label, GColorWatchface);
   text_layer_set_text_color(s_day_label, GColorContrast);
   text_layer_set_background_color(s_num_label, GColorWatchface);
@@ -218,6 +214,15 @@ static void in_recv_handler(DictionaryIterator *iterator, void *context) {
   }
   layer_mark_dirty(battery_layer);
   layer_mark_dirty(bt_layer);
+  watchface_layer = bitmap_layer_create(bounds);
+  bitmap_layer_set_bitmap(watchface_layer,watchface);
+#ifdef PBL_COLOR
+  bitmap_layer_set_compositing_mode(watchface_layer,GCompOpSet);
+#else
+  bitmap_layer_set_compositing_mode(watchface_layer,GCompOpAssign);
+#endif
+  bitmap_layer_set_background_color(watchface_layer,GColorWatchface);
+  layer_insert_below_sibling((Layer *)watchface_layer,(Layer *)s_date_layer);
 }
 
 //  Display the up/down arrow for timer selected
@@ -281,8 +286,11 @@ static void date_update_proc(Layer *layer, GContext *ctx) {
 //  Update the current battery level
 void battery_layer_update_callback(Layer *layer, GContext *ctx) {
 
-  // graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+#ifdef PBL_COLOR
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
+#else
+  graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+#endif
 
   if (!battery_plugged) {
     graphics_draw_bitmap_in_rect(ctx, icon_battery, GRect(0, 0, 24, 12));
@@ -302,10 +310,16 @@ void battery_state_handler(BatteryChargeState charge) {
 
 //  Update the bluetooth connection status
 void bt_layer_update_callback(Layer *layer, GContext *ctx) {
-  if (bt_ok)
+  if (bt_ok) {
+#ifdef PBL_COLOR
         graphics_context_set_compositing_mode(ctx, GCompOpSet);
-  else
+#else
+        graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+#endif
+  }
+  else {
         graphics_context_set_compositing_mode(ctx, GCompOpClear);
+  }
   graphics_draw_bitmap_in_rect(ctx, icon_bt, GRect(0, 0, 9, 12));
 }
 
@@ -694,7 +708,11 @@ static void window_load(Window *window) {
   }
   watchface_layer = bitmap_layer_create(bounds);
   bitmap_layer_set_bitmap(watchface_layer,watchface);
+#ifdef PBL_COLOR
   bitmap_layer_set_compositing_mode(watchface_layer,GCompOpSet);
+#else
+  bitmap_layer_set_compositing_mode(watchface_layer,GCompOpAssign);
+#endif
   bitmap_layer_set_background_color(watchface_layer, GColorWatchface);
   layer_add_child(window_layer,bitmap_layer_get_layer(watchface_layer));
 

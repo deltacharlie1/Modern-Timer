@@ -9,6 +9,7 @@ var screen_type = "sb";
 var watch;
 var screen_color;
 var flipscreen = "no";
+var platform = "aplite";
 
 Pebble.addEventListener("ready", function(e) {
   console.log("Hello world! - Sent from your javascript application.");
@@ -17,6 +18,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
         console.log("Into configuration.");
   if (Pebble.getActiveWatchInfo) {
     watch = Pebble.getActiveWatchInfo();
+    platform = watch.platform;
   }
     
   vibes_status = localStorage.getItem(vibes_key);
@@ -40,7 +42,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
     screen_color = "rgb(0, 0, 0)";
   }
 
-  Pebble.openURL('http://www.corunna.com/Pebble/index.html?' + vibes_status + "?" + revert_status + "?" + screen_type + "?" + watch.platform + "?" + encodeURIComponent(screen_color) + "?" + flipscreen);
+  Pebble.openURL('http://www.corunna.com/Pebble/index.html?' + vibes_status + "?" + revert_status + "?" + screen_type + "?" + platform + "?" + encodeURIComponent(screen_color) + "?" + flipscreen);
 });
 Pebble.addEventListener('webviewclosed', function(e) {
         console.log("Into wbclosed.");
